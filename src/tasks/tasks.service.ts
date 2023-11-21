@@ -20,19 +20,17 @@ export class TasksService {
   }
 
   async findOne(id: number): Promise<Task> {
-    return await this.taskModel.findOne((task: Task) => task.id === id).exec();
+    return this.taskModel.findOne({ id: id }).exec();
   }
 
   async findAll(): Promise<Task[]> {
-    return this.taskModel.find().exec();
+    return this.taskModel.find({}).exec();
   }
 
   async deleteOne(id: number) {
-    const result = await this.taskModel
-      .deleteOne((task: Task) => task.id === id)
-      .exec();
+    const result = await this.taskModel.findOneAndDelete({ id: id });
 
-    if (!result.acknowledged) {
+    if (result.errors) {
       throw new InternalServerErrorException('Could not delete the task');
     }
 
@@ -47,17 +45,13 @@ export class TasksService {
       ...updatedTask,
     };
 
-    await this.taskModel.updateOne((task: Task) => task.id === id, newTask);
+    await this.taskModel.updateOne({ id: id }, { $set: newTask });
     const changedTask = await this.findOne(id);
     return changedTask;
   }
 
   async setCompleted(id: number, value: boolean): Promise<Task> {
-    const task = await this.findOne(id);
-    const newTask: Task = {
-      ...task,
-      completed: value,
-    };
-    return await this.updateOne(id, newTask);
+    await this.taskModel.findOneAndUpdate({ id: id }, { completed: value });
+    return this.findOne(id);
   }
 }

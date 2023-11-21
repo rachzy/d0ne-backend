@@ -31,7 +31,7 @@ export class TasksController {
     )
     id: number,
   ): Promise<Task> {
-    return await this.tasksService.findOne(id);
+    return this.tasksService.findOne(id);
   }
 
   @Get('getAll')

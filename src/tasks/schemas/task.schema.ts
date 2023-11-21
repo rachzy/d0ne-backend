@@ -3,6 +3,8 @@ import { HydratedDocument } from 'mongoose';
 
 @Schema()
 export class Task {
+  _id?: string;
+
   @Prop({ required: true })
   id: number;
 
@@ -14,6 +16,8 @@ export class Task {
 
   @Prop({ required: true, default: false })
   completed: boolean;
+
+  __v?: number;
 }
 
 export type TaskDocument = HydratedDocument<Task>;
