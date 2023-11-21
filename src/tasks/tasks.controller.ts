@@ -23,26 +23,26 @@ export class TasksController {
   constructor(private tasksService: TasksService) {}
 
   @Get('get')
-  getTask(
+  async getTask(
     @Query(
       'id',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
       FindTaskPipe,
     )
     id: number,
-  ): Task {
-    return this.tasksService.findOne(id);
+  ): Promise<Task> {
+    return await this.tasksService.findOne(id);
   }
 
   @Get('getAll')
-  getAllTasks(): Task[] {
+  async getAllTasks(): Promise<Task[]> {
     return this.tasksService.findAll();
   }
 
   @Post('add')
   @UsePipes(new ZodValidationPipe(createTaskSchema))
-  addTask(@Body() task: CreateTaskDto) {
-    const id = this.tasksService.add(task);
+  async addTask(@Body() task: CreateTaskDto): Promise<Task> {
+    const id = await this.tasksService.add(task);
     return this.tasksService.findOne(id);
   }
 
@@ -59,7 +59,7 @@ export class TasksController {
   }
 
   @Put('edit')
-  editTask(
+  async editTask(
     @Query(
       'id',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
@@ -68,8 +68,8 @@ export class TasksController {
     id: number,
 
     @Body(new ZodValidationPipe(createTaskSchema)) task: CreateTaskDto,
-  ): Task {
-    return this.tasksService.updateOne(id, task);
+  ): Promise<Task> {
+    return await this.tasksService.updateOne(id, task);
   }
 
   @Put('setCompleted')
@@ -85,7 +85,7 @@ export class TasksController {
       new ParseBoolPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
     )
     value: boolean,
-  ): Task {
+  ): Promise<Task> {
     return this.tasksService.setCompleted(id, value);
   }
 }

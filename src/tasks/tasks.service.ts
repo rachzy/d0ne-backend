@@ -1,55 +1,63 @@
-import { Injectable } from '@nestjs/common';
-import { Task } from './interfaces/task.interface';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Task } from './schemas/task.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [];
+  constructor(@InjectModel(Task.name) private taskModel: Model<Task>) {}
 
-  add(task: CreateTaskDto): number {
+  async add(task: CreateTaskDto): Promise<number> {
     const newTask: Task = {
       id: Date.now(),
       ...task,
     };
-    this.tasks.push(newTask);
+    const createdTask = new this.taskModel(newTask);
+    createdTask.save();
+
     return newTask.id;
   }
 
-  findOne(id: number): Task {
-    return this.tasks.find((task) => task.id === id);
+  async findOne(id: number): Promise<Task> {
+    return await this.taskModel.findOne((task: Task) => task.id === id).exec();
   }
 
-  findAll(): Task[] {
-    return this.tasks;
+  async findAll(): Promise<Task[]> {
+    return this.taskModel.find().exec();
   }
 
-  deleteOne(id: number) {
-    this.tasks = this.tasks.filter((task) => task.id !== id);
+  async deleteOne(id: number) {
+    const result = await this.taskModel
+      .deleteOne((task: Task) => task.id === id)
+      .exec();
+
+    if (!result.acknowledged) {
+      throw new InternalServerErrorException('Could not delete the task');
+    }
+
     return {
       message: `Task #${id} successfully deleted.`,
     };
   }
 
-  updateOne(id: number, updatedTask: CreateTaskDto): Task {
-    this.tasks = this.tasks.filter((task) => task.id !== id);
-
+  async updateOne(id: number, updatedTask: CreateTaskDto): Promise<Task> {
     const newTask: Task = {
       id: id,
       ...updatedTask,
     };
-    this.tasks.push(newTask);
-    return newTask;
+
+    await this.taskModel.updateOne((task: Task) => task.id === id, newTask);
+    const changedTask = await this.findOne(id);
+    return changedTask;
   }
 
-  setCompleted(id: number, value: boolean): Task {
-    this.tasks = this.tasks.map((task) => {
-      if (task.id !== id) return task;
-      return {
-        ...task,
-        completed: value,
-      };
-    });
-
-    return this.findOne(id);
+  async setCompleted(id: number, value: boolean): Promise<Task> {
+    const task = await this.findOne(id);
+    const newTask: Task = {
+      ...task,
+      completed: value,
+    };
+    return await this.updateOne(id, newTask);
   }
 }
