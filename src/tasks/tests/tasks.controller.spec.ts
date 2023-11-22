@@ -58,7 +58,7 @@ describe('TasksController', () => {
   });
 
   it('should return a null task', async () => {
-    tasksController.deleteTask(dummyTask.id);
+    await tasksController.deleteTask(dummyTask.id);
 
     expect(await tasksController.getTask(dummyTask.id)).toBeNull();
   });
