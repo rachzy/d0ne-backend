@@ -21,7 +21,7 @@ import { User } from './schemas/user.schema';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('get')
+  @Get('getNickname')
   async getUserNickname(
     @Query(
       'id',
@@ -41,7 +41,7 @@ export class UsersController {
   async createUser(
     @Res() response: Response,
     @Body(new ZodValidationPipe(createUserSchema)) user: CreateUserDto,
-  ): Promise<Pick<User, 'id' | 'nickname' | 'email'>> {
+  ) {
     const finalUser = await this.usersService.create(user);
     const { id, nickname, email, securityToken } = finalUser;
     const { value, expirationDate } = securityToken;
@@ -52,11 +52,11 @@ export class UsersController {
       secure: true,
     });
 
-    return {
+    response.send({
       id: id,
       email: email,
       nickname: nickname,
-    };
+    });
   }
 
   @Delete('delete')
