@@ -9,16 +9,16 @@ export class LoggerMiddleware implements NestMiddleware {
   use(req: any, res: any, next: (error?: any) => void) {
     const action = {
       GET: () => {
-        console.log('Getting data...');
+        console.log('Getting task...');
       },
       POST: () => {
-        console.log('Posting data...');
+        console.log('Posting task...');
       },
       PUT: () => {
-        console.log('Altering data...');
+        console.log('Altering task...');
       },
       DELETE: () => {
-        console.log('Deleting data...');
+        console.log('Deleting task...');
       },
       UNKNOWN: () => {
         throw new BadRequestException('Forbidden request method!');

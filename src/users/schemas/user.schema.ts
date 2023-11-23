@@ -15,16 +15,25 @@ class SecurityToken {
 export class User {
   _id: string;
 
+  @Prop({ required: true, default: Date.now() })
+  id: number;
+
   @Prop({ required: true, minlength: 4, maxlength: 16 })
   nickname: string;
 
   @Prop({ required: true, minlength: 8, maxlength: 128 })
   email: string;
 
-  @Prop({ required: true, minlength: 4, maxlength: 64 })
+  @Prop({ required: true, minlength: 4, maxlength: 128 })
   password: string;
 
-  @Prop({ required: false })
+  @Prop({
+    required: false,
+    default: {
+      value: pseudoRandomBytes(64).toString('hex'),
+      expirationDate: add(Date.now(), { days: 7 }),
+    },
+  })
   securityToken: SecurityToken;
 
   __v: number;

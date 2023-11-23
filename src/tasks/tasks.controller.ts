@@ -12,7 +12,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { ZodValidationPipe } from './pipes/zodValidation.pipe';
+import { ZodValidationPipe } from '../pipes/zodValidation.pipe';
 import { createTaskSchema } from './pipes/createTask.pipe';
 import { Task } from './interfaces/task.interface';
 import { CreateTaskDto } from './dto/create-task.dto';
