@@ -42,12 +42,16 @@ export class TasksController {
   ): Promise<Task> {
     const { UID } = request.cookies;
     const id = await this.tasksService.add(UID, task);
+
+    console.log(`[POST] User #${UID} created: Task #${id}`);
+
     return this.tasksService.findOne(id);
   }
 
   @Delete('delete')
   @UseGuards(TaskOwner)
-  deleteTask(
+  async deleteTask(
+    @Req() request: Request,
     @Query(
       'id',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
@@ -55,7 +59,11 @@ export class TasksController {
     )
     id: number,
   ) {
-    return this.tasksService.deleteOne(id);
+    const { UID } = request.cookies;
+    const action = await this.tasksService.deleteOne(id);
+
+    console.log(`[DELETE] User #${UID} deleted: Task #${id}`);
+    return action;
   }
 
   @Put('edit')
@@ -71,12 +79,17 @@ export class TasksController {
     @Body(new ZodValidationPipe(createTaskSchema)) task: CreateTaskDto,
   ): Promise<Task> {
     const { UID } = request.cookies;
-    return await this.tasksService.updateOne(UID, id, task);
+
+    const action = await this.tasksService.updateOne(UID, id, task);
+    console.log(`[PUT] User #${UID} changed: Task #${id}`);
+
+    return action;
   }
 
   @Put('setCompleted')
   @UseGuards(TaskOwner)
-  setCompleted(
+  async setCompleted(
+    @Req() request: Request,
     @Query(
       'id',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
@@ -89,6 +102,14 @@ export class TasksController {
     )
     value: boolean,
   ): Promise<Task> {
-    return this.tasksService.setCompleted(id, value);
+    const { UID } = request.cookies;
+
+    const action = await this.tasksService.setCompleted(id, value);
+
+    console.log(
+      `[PUT] User #${UID} set Task #${id} completed value as: ${value.toString()}`,
+    );
+
+    return action;
   }
 }

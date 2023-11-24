@@ -3,22 +3,42 @@ import {
   Injectable,
   NestMiddleware,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  use(req: any, res: any, next: (error?: any) => void) {
+  use(req: Request, res: Response, next: (error?: any) => void) {
+    const { UID } = req.cookies;
+    const { id } = req.query;
+    const userId = UID || 'Unknown';
+    const taskId = id ? `Task #${id}` : '';
+
     const action = {
       GET: () => {
-        console.log('Getting task...');
+        console.log(
+          `[GET] User #${userId} is attempting to pull data from: ${
+            taskId || 'All their tasks'
+          }`,
+        );
       },
       POST: () => {
-        console.log('Posting task...');
+        console.log(
+          `[POST] User #${userId} is attempting to create a new task.`,
+        );
       },
       PUT: () => {
-        console.log('Altering task...');
+        console.log(
+          `[PUT] User #${userId} is attempting to update: ${
+            taskId || 'Unknown task'
+          }`,
+        );
       },
       DELETE: () => {
-        console.log('Deleting task...');
+        console.log(
+          `[DELETE] User #${userId} is attempting to delete: ${
+            taskId || 'Unknown task'
+          } `,
+        );
       },
       UNKNOWN: () => {
         throw new BadRequestException('Forbidden request method!');
