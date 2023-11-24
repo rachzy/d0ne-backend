@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpStatus,
   ParseIntPipe,
@@ -10,6 +9,8 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { FindUserByIdPipe } from './pipes/findUserById.pipe';
 import { UsersService } from './users.service';
@@ -18,6 +19,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { createUserSchema } from './pipes/createUser.pipe';
 import { Response, Request } from 'express';
 import { User } from './schemas/user.schema';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller('user')
 export class UsersController {
@@ -45,15 +47,35 @@ export class UsersController {
     @Res() response: Response,
     @Body(new ZodValidationPipe(createUserSchema)) user: CreateUserDto,
   ) {
-    const { STOKEN } = request.cookies;
+    const { UID, STOKEN } = request.cookies;
+    let UIDnumber: number;
 
-    if (STOKEN) {
-      throw new UnauthorizedException('Already logged in!');
+    if (UID) {
+      try {
+        UIDnumber = parseInt(UID);
+      } catch (error) {
+        UIDnumber = 0;
+      }
+    }
+
+    if (UIDnumber && STOKEN) {
+      const securityTokenStatus =
+        await this.usersService.checkSecurityTokenStatus(UIDnumber, STOKEN);
+
+      if (securityTokenStatus) {
+        throw new UnauthorizedException('Already logged in!');
+      }
     }
 
     const finalUser = await this.usersService.create(user);
-    const { id, nickname, email, securityToken } = finalUser;
-    const { value, expirationDate } = securityToken;
+    const { id, nickname, email, securityTokens: securityToken } = finalUser;
+    const { value, expirationDate } = securityToken[0];
+
+    response.cookie('UID', id, {
+      expires: expirationDate,
+      httpOnly: true,
+      secure: true,
+    });
 
     response.cookie('STOKEN', value, {
       expires: expirationDate,
@@ -68,16 +90,19 @@ export class UsersController {
     });
   }
 
-  @Delete('delete')
-  async deleteUser(
-    @Query(
-      'id',
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
-      FindUserByIdPipe,
-    )
-    id: number,
-  ) {
-    return this.usersService.deleteUser(id);
+  @Delete('logout')
+  @UseGuards(AuthGuard)
+  async logout(@Res() res: Response, @Req() req: Request) {
+    const { UID, STOKEN } = req.cookies;
+
+    await this.usersService.logout(UID, STOKEN);
+
+    res.clearCookie('UID');
+    res.clearCookie('STOKEN');
+
+    res.send({
+      message: 'Successfully logged out!',
+    });
   }
 
   @Get('auth')
@@ -86,10 +111,18 @@ export class UsersController {
     @Query('email') email: string,
     @Query('password') password: string,
   ) {
-    const { value, expirationDate } = await this.usersService.authenticate(
+    const { id, securityTokens } = await this.usersService.authenticate(
       email,
       password,
     );
+
+    const { value, expirationDate } = securityTokens[0];
+
+    response.cookie('UID', id, {
+      expires: expirationDate,
+      httpOnly: true,
+      secure: true,
+    });
 
     response.cookie('STOKEN', value, {
       expires: expirationDate,

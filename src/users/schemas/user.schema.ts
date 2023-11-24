@@ -9,6 +9,9 @@ export class SecurityToken {
 
   @Prop({ required: true, default: add(Date.now(), { days: 7 }) })
   expirationDate: Date;
+
+  @Prop({ required: false, default: true })
+  valid: boolean;
 }
 
 @Schema()
@@ -33,10 +36,11 @@ export class User {
       {
         value: pseudoRandomBytes(64).toString('hex'),
         expirationDate: add(Date.now(), { days: 7 }),
+        valid: true,
       },
     ],
   })
-  securityToken: SecurityToken;
+  securityTokens: SecurityToken[];
 
   __v: number;
 }

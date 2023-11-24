@@ -43,7 +43,7 @@ export class UsersService {
   async authenticate(
     email: string,
     userPassword: string,
-  ): Promise<SecurityToken> {
+  ): Promise<Pick<User, 'id' | 'securityTokens'>> {
     const getUserByEmail = await this.userModel
       .findOne({ email: email })
       .exec();
@@ -65,17 +65,53 @@ export class UsersService {
     const securityToken: SecurityToken = {
       value: newSecurityToken,
       expirationDate: add(Date.now(), { days: 7 }),
+      valid: true,
     };
 
     await this.userModel.findOneAndUpdate(
       { id: getUserByEmail.id },
       {
-        $set: {
-          securityToken: [{ securityToken, ...getUserByEmail.securityToken }],
+        $push: {
+          securityTokens: securityToken,
         },
       },
     );
-    return securityToken;
+    return { id: getUserByEmail.id, securityTokens: [securityToken] };
+  }
+
+  async checkSecurityTokenStatus(id: number, value: string): Promise<boolean> {
+    const user = await this.findOne(id);
+    if (!user) return false;
+
+    const securityToken = user.securityTokens.find(
+      (sToken) =>
+        sToken.value === value &&
+        sToken.expirationDate.getTime() > Date.now() &&
+        sToken.valid,
+    );
+
+    return !!securityToken;
+  }
+
+  async invalidateSecurityToken(user: User, STOKEN: string) {
+    const { id } = user;
+    const newSecurityTokens = user.securityTokens.map((securityToken) => {
+      if (securityToken.value !== STOKEN) return securityToken;
+      return {
+        ...securityToken,
+        valid: false,
+      };
+    });
+
+    await this.userModel.findOneAndUpdate(
+      { id: id },
+      { $set: { securityTokens: newSecurityTokens } },
+    );
+  }
+
+  async logout(id: number, STOKEN: string) {
+    const user = await this.findOne(id);
+    this.invalidateSecurityToken(user, STOKEN);
   }
 
   async deleteUser(id: number) {
