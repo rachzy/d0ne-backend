@@ -8,7 +8,6 @@ import {
   Query,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
   Delete,
 } from '@nestjs/common';
@@ -20,6 +19,7 @@ import { createUserSchema } from './pipes/createUser.pipe';
 import { Response, Request } from 'express';
 import { User } from './schemas/user.schema';
 import { AuthGuard } from './guards/auth.guard';
+import { UnauthGuard } from './guards/unauth.guard';
 
 @Controller('user')
 export class UsersController {
@@ -42,31 +42,11 @@ export class UsersController {
   }
 
   @Post('create')
+  @UseGuards(UnauthGuard)
   async createUser(
-    @Req() request: Request,
     @Res() response: Response,
     @Body(new ZodValidationPipe(createUserSchema)) user: CreateUserDto,
   ) {
-    const { UID, STOKEN } = request.cookies;
-    let UIDnumber: number;
-
-    if (UID) {
-      try {
-        UIDnumber = parseInt(UID);
-      } catch (error) {
-        UIDnumber = 0;
-      }
-    }
-
-    if (UIDnumber && STOKEN) {
-      const securityTokenStatus =
-        await this.usersService.checkSecurityTokenStatus(UIDnumber, STOKEN);
-
-      if (securityTokenStatus) {
-        throw new UnauthorizedException('Already logged in!');
-      }
-    }
-
     const finalUser = await this.usersService.create(user);
     const { id, nickname, email, securityTokens: securityToken } = finalUser;
     const { value, expirationDate } = securityToken[0];
@@ -106,6 +86,7 @@ export class UsersController {
   }
 
   @Get('auth')
+  @UseGuards(UnauthGuard)
   async authenticateUser(
     @Res() response: Response,
     @Query('email') email: string,
