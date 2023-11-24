@@ -3,7 +3,7 @@ import { pseudoRandomBytes } from 'crypto';
 import { add } from 'date-fns';
 import { HydratedDocument } from 'mongoose';
 
-class SecurityToken {
+export class SecurityToken {
   @Prop({ required: true, length: 64, default: pseudoRandomBytes(64) })
   value: string;
 
@@ -29,10 +29,12 @@ export class User {
 
   @Prop({
     required: false,
-    default: {
-      value: pseudoRandomBytes(64).toString('hex'),
-      expirationDate: add(Date.now(), { days: 7 }),
-    },
+    default: [
+      {
+        value: pseudoRandomBytes(64).toString('hex'),
+        expirationDate: add(Date.now(), { days: 7 }),
+      },
+    ],
   })
   securityToken: SecurityToken;
 
