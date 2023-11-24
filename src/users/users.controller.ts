@@ -51,6 +51,8 @@ export class UsersController {
     const { id, nickname, email, securityTokens: securityToken } = finalUser;
     const { value, expirationDate } = securityToken[0];
 
+    console.log(`[REGISTER] A new user has been registered. ID: #${id}`);
+
     response.cookie('UID', id, {
       expires: expirationDate,
       httpOnly: true,
@@ -80,6 +82,7 @@ export class UsersController {
     res.clearCookie('UID');
     res.clearCookie('STOKEN');
 
+    console.log(`[LOGOUT] User #${UID} just logged out (token: ${STOKEN}).`);
     res.send({
       message: 'Successfully logged out!',
     });
@@ -96,6 +99,8 @@ export class UsersController {
       email,
       password,
     );
+
+    console.log(`[LOGIN] User #${id} has just logged in a new device.`);
 
     const { value, expirationDate } = securityTokens[0];
 

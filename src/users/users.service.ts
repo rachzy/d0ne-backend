@@ -76,6 +76,7 @@ export class UsersService {
         },
       },
     );
+
     return { id: getUserByEmail.id, securityTokens: [securityToken] };
   }
 

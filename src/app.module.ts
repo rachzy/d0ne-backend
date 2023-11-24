@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TasksModule } from './tasks/tasks.module';
-import { LoggerMiddleware } from './tasks/middlewares/logger.middleware';
+import { LoggerMiddleware as TasksMiddleware } from './tasks/middlewares/logger.middleware';
+import { LoggerMiddleware as UsersMiddleware } from './users/middlewares/logger.middleware';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 
@@ -13,6 +14,7 @@ import { UsersModule } from './users/users.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('tasks');
+    consumer.apply(TasksMiddleware).forRoutes('tasks');
+    consumer.apply(UsersMiddleware).forRoutes('user');
   }
 }

@@ -43,7 +43,7 @@ export class TasksController {
     const { UID } = request.cookies;
     const id = await this.tasksService.add(UID, task);
 
-    console.log(`[POST] User #${UID} created: Task #${id}`);
+    console.log(`[NEW TASK] User #${UID} created: Task #${id}`);
 
     return this.tasksService.findOne(id);
   }
@@ -62,7 +62,7 @@ export class TasksController {
     const { UID } = request.cookies;
     const action = await this.tasksService.deleteOne(id);
 
-    console.log(`[DELETE] User #${UID} deleted: Task #${id}`);
+    console.log(`[DELETED TASK] User #${UID} deleted: Task #${id}`);
     return action;
   }
 
@@ -81,7 +81,7 @@ export class TasksController {
     const { UID } = request.cookies;
 
     const action = await this.tasksService.updateOne(UID, id, task);
-    console.log(`[PUT] User #${UID} changed: Task #${id}`);
+    console.log(`[CHANGED TASK] User #${UID} changed: Task #${id}`);
 
     return action;
   }
@@ -107,7 +107,7 @@ export class TasksController {
     const action = await this.tasksService.setCompleted(id, value);
 
     console.log(
-      `[PUT] User #${UID} set Task #${id} completed value as: ${value.toString()}`,
+      `[CHANGED TASK] User #${UID} set Task #${id} completed value as: ${value.toString()}`,
     );
 
     return action;
