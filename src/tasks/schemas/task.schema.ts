@@ -6,6 +6,9 @@ export class Task {
   _id?: string;
 
   @Prop({ required: true })
+  taskOwner: number;
+
+  @Prop({ required: true })
   id: number;
 
   @Prop({ required: true })

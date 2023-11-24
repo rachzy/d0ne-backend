@@ -18,7 +18,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { createUserSchema } from './pipes/createUser.pipe';
 import { Response, Request } from 'express';
 import { User } from './schemas/user.schema';
-import { AuthGuard } from './guards/auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
 import { UnauthGuard } from './guards/unauth.guard';
 
 @Controller('user')

@@ -8,8 +8,9 @@ import { Model } from 'mongoose';
 export class TasksService {
   constructor(@InjectModel(Task.name) private taskModel: Model<Task>) {}
 
-  async add(task: CreateTaskDto): Promise<number> {
+  async add(userId: number, task: CreateTaskDto): Promise<number> {
     const newTask: Task = {
+      taskOwner: userId,
       id: Date.now(),
       ...task,
     };
@@ -27,6 +28,10 @@ export class TasksService {
     return this.taskModel.find({}).exec();
   }
 
+  async findAllFromUser(userId: number): Promise<Task[]> {
+    return this.taskModel.find({ taskOwner: userId }).exec();
+  }
+
   async deleteOne(id: number) {
     const result = await this.taskModel.findOneAndDelete({ id: id });
 
@@ -39,8 +44,13 @@ export class TasksService {
     };
   }
 
-  async updateOne(id: number, updatedTask: CreateTaskDto): Promise<Task> {
+  async updateOne(
+    userId: number,
+    id: number,
+    updatedTask: CreateTaskDto,
+  ): Promise<Task> {
     const newTask: Task = {
+      taskOwner: userId,
       id: id,
       ...updatedTask,
     };
