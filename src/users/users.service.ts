@@ -49,7 +49,7 @@ export class UsersService {
       .exec();
 
     if (!getUserByEmail) {
-      throw new UnauthorizedException('Invalid email');
+      throw new UnauthorizedException('Invalid credentials.');
     }
 
     const { password } = getUserByEmail;
@@ -57,7 +57,7 @@ export class UsersService {
     const comparePasswords = await compare(userPassword, password);
 
     if (!comparePasswords) {
-      throw new UnauthorizedException('Invalid password');
+      throw new UnauthorizedException('Invalid credentials.');
     }
 
     const newSecurityToken = randomBytes(64).toString('hex');

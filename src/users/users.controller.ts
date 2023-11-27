@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
-  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -11,7 +9,6 @@ import {
   UseGuards,
   Delete,
 } from '@nestjs/common';
-import { FindUserByIdPipe } from './pipes/findUserById.pipe';
 import { UsersService } from './users.service';
 import { ZodValidationPipe } from 'src/pipes/zodValidation.pipe';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -25,16 +22,13 @@ import { UnauthGuard } from './guards/unauth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('getNickname')
-  async getUserNickname(
-    @Query(
-      'id',
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
-      FindUserByIdPipe,
-    )
-    id: number,
+  @Get('getData')
+  @UseGuards(AuthGuard)
+  async getData(
+    @Req() request: Request,
   ): Promise<Pick<User, 'id' | 'nickname'>> {
-    const user = await this.usersService.findOne(id);
+    const { UID } = request.cookies;
+    const user = await this.usersService.findOne(UID);
     return {
       id: user.id,
       nickname: user.nickname,
@@ -119,5 +113,24 @@ export class UsersController {
     response.send({
       message: 'Successfully authenticated.',
     });
+  }
+
+  @Get('validateSession')
+  async validateSession(@Req() request: Request) {
+    const { UID, STOKEN } = request.cookies;
+
+    if (
+      !UID ||
+      !STOKEN ||
+      !this.usersService.checkSecurityTokenStatus(UID, STOKEN)
+    ) {
+      return {
+        validSession: false,
+      };
+    }
+
+    return {
+      validSession: true,
+    };
   }
 }

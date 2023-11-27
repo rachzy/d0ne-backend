@@ -10,9 +10,7 @@ export class LoggerMiddleware implements NestMiddleware {
     const actions = {
       GET: () => {
         if (UID) {
-          console.log(
-            `[GET] User #${UID} is attempting to get data from an user (Probably getting their own nickname).`,
-          );
+          console.log(`[GET] User #${UID} is attempting to get its own data.`);
         } else {
           console.log(`[GET] A new authentication process has been requested.`);
         }
