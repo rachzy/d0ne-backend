@@ -7,7 +7,10 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017', { dbName: 'todo' }),
+    MongooseModule.forRoot(
+      'mongodb+srv://rachzy-public:H2ORdHoiSW2AiwrN@rachzydb.qnq9a.mongodb.net/?retryWrites=true&w=majority',
+      { dbName: 'd0ne' },
+    ),
     TasksModule,
     UsersModule,
   ],

@@ -29,10 +29,8 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    const securityTokenStatus = this.usersService.checkSecurityTokenStatus(
-      UID,
-      STOKEN,
-    );
+    const securityTokenStatus =
+      await this.usersService.checkSecurityTokenStatus(UID, STOKEN);
 
     if (!securityTokenStatus) {
       errorCallback('Invalid security token!');
