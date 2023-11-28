@@ -18,7 +18,7 @@ export class SecurityToken {
 export class User {
   _id: string;
 
-  @Prop({ required: true, default: Date.now() })
+  @Prop({ required: true, default: new Date().getTime() })
   id: number;
 
   @Prop({ required: true, minlength: 4, maxlength: 16 })

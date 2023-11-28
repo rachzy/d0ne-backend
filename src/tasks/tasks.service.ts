@@ -11,7 +11,7 @@ export class TasksService {
   async add(userId: number, task: CreateTaskDto): Promise<number> {
     const newTask: Task = {
       taskOwner: userId,
-      id: Date.now(),
+      id: new Date().getTime(),
       ...task,
     };
     const createdTask = new this.taskModel(newTask);

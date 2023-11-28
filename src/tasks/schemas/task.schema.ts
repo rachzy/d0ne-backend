@@ -14,10 +14,10 @@ export class Task {
   @Prop({ required: true })
   title: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default: 'No description provided' })
   description: string;
 
-  @Prop({ required: true, default: false })
+  @Prop({ required: false, default: false })
   completed: boolean;
 
   __v?: number;
