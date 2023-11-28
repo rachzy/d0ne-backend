@@ -35,7 +35,7 @@ export class UsersController {
     };
   }
 
-  @Post('create')
+  @Post('register')
   @UseGuards(UnauthGuard)
   async createUser(
     @Res() response: Response,
