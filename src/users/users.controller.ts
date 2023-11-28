@@ -51,12 +51,14 @@ export class UsersController {
       expires: expirationDate,
       httpOnly: true,
       secure: true,
+      sameSite: 'none',
     });
 
     response.cookie('STOKEN', value, {
       expires: expirationDate,
       httpOnly: true,
       secure: true,
+      sameSite: 'none',
     });
 
     response.send({
@@ -102,12 +104,14 @@ export class UsersController {
       expires: expirationDate,
       httpOnly: true,
       secure: true,
+      sameSite: 'none',
     });
 
     response.cookie('STOKEN', value, {
       expires: expirationDate,
       httpOnly: true,
       secure: true,
+      sameSite: 'none',
     });
 
     response.send({
