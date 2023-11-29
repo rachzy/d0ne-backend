@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 export class TasksService {
   constructor(@InjectModel(Task.name) private taskModel: Model<Task>) {}
 
-  async add(userId: number, task: CreateTaskDto): Promise<number> {
+  async add(userId: number, task: CreateTaskDto): Promise<Task> {
     const newTask: Task = {
       taskOwner: userId,
       id: new Date().getTime(),
@@ -17,7 +17,7 @@ export class TasksService {
     const createdTask = new this.taskModel(newTask);
     createdTask.save();
 
-    return newTask.id;
+    return createdTask;
   }
 
   async findOne(id: number): Promise<Task> {

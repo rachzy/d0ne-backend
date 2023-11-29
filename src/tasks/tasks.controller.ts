@@ -41,11 +41,11 @@ export class TasksController {
     @Body() task: CreateTaskDto,
   ): Promise<Task> {
     const { UID } = request.cookies;
-    const id = await this.tasksService.add(UID, task);
+    const newTask = await this.tasksService.add(UID, task);
 
-    console.log(`[NEW TASK] User #${UID} created: Task #${id}`);
+    console.log(`[NEW TASK] User #${UID} created: Task #${newTask.id}`);
 
-    return this.tasksService.findOne(id);
+    return newTask;
   }
 
   @Delete('delete')
