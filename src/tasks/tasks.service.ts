@@ -3,6 +3,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Task } from './schemas/task.schema';
 import { Model } from 'mongoose';
+import { randomInt } from 'crypto';
 
 @Injectable()
 export class TasksService {
@@ -11,7 +12,7 @@ export class TasksService {
   async add(userId: number, task: CreateTaskDto): Promise<Task> {
     const newTask: Task = {
       taskOwner: userId,
-      id: new Date().getTime(),
+      id: randomInt(99999999),
       ...task,
     };
     const createdTask = new this.taskModel(newTask);

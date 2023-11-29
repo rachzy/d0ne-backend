@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SecurityToken, User } from './schemas/user.schema';
 import { CreateUserDto } from './dtos/create-user.dto';
-import { randomBytes } from 'crypto';
+import { randomBytes, randomInt } from 'crypto';
 import { add } from 'date-fns';
 import { compare, hash } from 'bcryptjs';
 
@@ -30,6 +30,7 @@ export class UsersService {
     const hashedPassword = await hash(user.password, 8);
 
     const finalUser: CreateUserDto = {
+      id: randomInt(1000) * Date.now(),
       ...user,
       password: hashedPassword,
     };
