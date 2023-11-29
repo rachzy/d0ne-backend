@@ -19,8 +19,8 @@ export class AuthGuard implements CanActivate {
     const { UID, STOKEN } = request.cookies;
 
     function errorCallback(message: string) {
-      response.clearCookie('UID');
-      response.clearCookie('STOKEN');
+      response.clearCookie('UID', { sameSite: 'none' });
+      response.clearCookie('STOKEN', { sameSite: 'none' });
       throw new UnauthorizedException(message);
     }
 
