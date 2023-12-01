@@ -123,18 +123,16 @@ export class UsersController {
   async validateSession(@Req() request: Request) {
     const { UID, STOKEN } = request.cookies;
 
-    if (
-      !UID ||
-      !STOKEN ||
-      !this.usersService.checkSecurityTokenStatus(UID, STOKEN)
-    ) {
+    if (!UID || !STOKEN) {
       return {
         validSession: false,
       };
     }
 
+    const checkSecurityTokenStatus =
+      await this.usersService.checkSecurityTokenStatus(UID, STOKEN);
     return {
-      validSession: true,
+      validSession: checkSecurityTokenStatus,
     };
   }
 }

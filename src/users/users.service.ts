@@ -92,7 +92,7 @@ export class UsersService {
         sToken.valid,
     );
 
-    return !!securityToken;
+    return Boolean(securityToken);
   }
 
   async invalidateSecurityToken(user: User, STOKEN: string) {
